@@ -5,6 +5,7 @@ using Owin;
 namespace NextBuildHangfireDemo
 {
     using Hangfire;
+    using Services;
 
     public partial class Startup
     {
@@ -16,6 +17,8 @@ namespace NextBuildHangfireDemo
 
             app.UseHangfireDashboard();
             app.UseHangfireServer();
+
+            RecurringJob.AddOrUpdate<TempfileCleanupService>("remove emails", x => x.CleanUpEmails(), Cron.Minutely);
         }
     }
 }
