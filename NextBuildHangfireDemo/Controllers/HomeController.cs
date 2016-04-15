@@ -6,7 +6,12 @@ using System.Web.Mvc;
 
 namespace NextBuildHangfireDemo.Controllers
 {
+    using System.IO;
+    using System.Web.Hosting;
+    using Hangfire;
     using Models;
+    using Postal;
+    using EmailService = NextBuildHangfireDemo.EmailService;
 
     public class HomeController : Controller
     {
@@ -27,14 +32,7 @@ namespace NextBuildHangfireDemo.Controllers
                 _db.Comments.Add(model);
                 _db.SaveChanges();
 
-                var email = new NewCommentEmail
-                {
-                    To = "yourmail@example.com",
-                    UserName = model.UserName,
-                    Comment = model.Text
-                };
-
-                email.Send();
+                BackgroundJob.Enqueue<Services.EmailService>(x => x.NotifyNewComment(model.Id));
             }
 
             return RedirectToAction("Index");
