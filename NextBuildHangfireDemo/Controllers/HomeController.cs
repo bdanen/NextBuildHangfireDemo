@@ -6,25 +6,38 @@ using System.Web.Mvc;
 
 namespace NextBuildHangfireDemo.Controllers
 {
+    using Models;
+
     public class HomeController : Controller
     {
+        private readonly MailerDbContext _db = new MailerDbContext();
+
+        [HttpGet]
         public ActionResult Index()
         {
-            return View();
+            var comments = _db.Comments.OrderBy(x => x.Id).ToList();
+            return View(comments);
         }
 
-        public ActionResult About()
+        [HttpPost]
+        public ActionResult Create(Comment model)
         {
-            ViewBag.Message = "Your application description page.";
+            if (ModelState.IsValid)
+            {
+                _db.Comments.Add(model);
+                _db.SaveChanges();
 
-            return View();
-        }
+                var email = new NewCommentEmail
+                {
+                    To = "yourmail@example.com",
+                    UserName = model.UserName,
+                    Comment = model.Text
+                };
 
-        public ActionResult Contact()
-        {
-            ViewBag.Message = "Your contact page.";
+                email.Send();
+            }
 
-            return View();
+            return RedirectToAction("Index");
         }
     }
 }
