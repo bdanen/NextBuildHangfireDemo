@@ -16,9 +16,7 @@ namespace NextBuildHangfireDemo
             GlobalConfiguration.Configuration.UseSqlServerStorage("MailerDb");
 
             app.UseHangfireDashboard();
-            app.UseHangfireServer();
-
-            RecurringJob.AddOrUpdate<TempfileCleanupService>("remove emails", x => x.CleanUpEmails(), Cron.Minutely);
+            app.UseHangfireServer(new TempfileCleanupService());
         }
     }
 }
